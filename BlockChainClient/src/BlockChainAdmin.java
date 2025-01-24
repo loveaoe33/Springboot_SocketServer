@@ -4,9 +4,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import com.ibm.icu.util.JapaneseCalendar;
+import org.jdatepicker.JDatePanel;
+import org.jdatepicker.JDatePicker;
 
 import javax.swing.JDesktopPane;
+import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.JList;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
@@ -18,13 +20,27 @@ import java.awt.Font;
 import java.awt.BorderLayout;
 import java.awt.Choice;
 import java.awt.TextField;
+import java.text.ParseException;
+
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
 import java.util.Date;
+import java.util.Properties;
+
 import javax.swing.JTable;
 import java.awt.Button;
 import java.awt.TextArea;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
+import com.ibm.icu.text.SimpleDateFormat;
+import java.util.Calendar	;
+import javax.swing.JTextField;
+import javax.swing.*;
+import de.wannawork.jcalendar.*;
+
 
 
 public class BlockChainAdmin<SingleClassMethod> extends JFrame {
@@ -32,21 +48,17 @@ public class BlockChainAdmin<SingleClassMethod> extends JFrame {
 	private JPanel contentPane;
 	private SingleClassMethod singleClassMethod;
 	private JTable table;
+	private JTextField dataSearch;
+	private JTextField accountSearch;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
+	
+    
+	public static  void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					BlockChainAdmin frame = new BlockChainAdmin();
-
-		
-			 
-
-			     
-			        
+			       
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -55,10 +67,8 @@ public class BlockChainAdmin<SingleClassMethod> extends JFrame {
 		});
 	}
 
-	protected void add(JapaneseCalendar calendar, String center) {
-		// TODO Auto-generated method stub
-		
-	}
+	
+
 
 	/**
 	 * Create the frame.
@@ -74,6 +84,7 @@ public class BlockChainAdmin<SingleClassMethod> extends JFrame {
 		setContentPane(contentPane);
 		
 		contentPane.setLayout(null);
+
 		
 		JList list = new JList();
 		list.setBounds(10, 44, 217, 208);
@@ -110,10 +121,6 @@ public class BlockChainAdmin<SingleClassMethod> extends JFrame {
 		lblNewLabel_1_2.setFont(new Font("標楷體", Font.PLAIN, 14));
 		lblNewLabel_1_2.setBounds(692, 19, 73, 15);
 		contentPane.add(lblNewLabel_1_2);
-		
-		TextField textField = new TextField();
-		textField.setBounds(527, 15, 154, 23);
-		contentPane.add(textField);
 		
 		JSeparator separator = new JSeparator();
 		separator.setBounds(10, 299, 898, 2);
@@ -215,6 +222,16 @@ public class BlockChainAdmin<SingleClassMethod> extends JFrame {
 		TextArea textArea = new TextArea();
 		textArea.setBounds(188, 398, 184, 154);
 		contentPane.add(textArea);
+		
+		dataSearch = new JTextField();
+		dataSearch.setBounds(757, 16, 151, 21);
+		contentPane.add(dataSearch);
+		dataSearch.setColumns(10);
+		
+		accountSearch = new JTextField();
+		accountSearch.setBounds(537, 16, 144, 21);
+		contentPane.add(accountSearch);
+		accountSearch.setColumns(10);
 	
 	}
 }

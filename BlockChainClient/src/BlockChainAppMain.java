@@ -5,6 +5,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+
+import lib.HttpMethod;
+
 import javax.swing.JToolBar;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -33,10 +36,12 @@ public class BlockChainAppMain<UserObject> extends JFrame {
     private UserObject userObject;
     private JTextField toPriceText;
     private JTextField priceAccountText;
+    private HttpMethod httpMethod;
 	/**
 	 * Create the frame.
 	 */
 	public BlockChainAppMain() {
+		httpMethod=HttpMethod.getMethodInstance();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 856, 559);
 		contentPane = new JPanel();
@@ -169,11 +174,12 @@ public class BlockChainAppMain<UserObject> extends JFrame {
 	}
 	public void init_textArea() {  //初始化區塊區資訊與按鈕功能
 		JTextArea area=new JTextArea();
+		area.setEditable(false);
 		JScrollPane textscrollPane=new JScrollPane(area);
 		JPanel buttonPanel=new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel,BoxLayout.Y_AXIS));
 		JButton areaNewButton=new JButton("查詢最新區塊");
-		areaNewButton.addActionListener(e->System.out.println("按鈕1"));
+		areaNewButton.addActionListener(e-> btn_Click("blockNew","","GET"));
 		JButton areaAllButton=new JButton("查詢所有區塊");
 		areaAllButton.addActionListener(e->System.out.println("按鈕2"));
 		JButton contractAddressButton=new JButton("查看合約地址");
@@ -181,8 +187,10 @@ public class BlockChainAppMain<UserObject> extends JFrame {
 		JButton transactionHistory=new JButton("查看交易紀錄");
 		transactionHistory.addActionListener(e->System.out.println("按鈕4"));
 		JButton nodePrice=new JButton("節點餘額查詢");
+		nodePrice.setEnabled(false);
 		nodePrice.addActionListener(e->System.out.println("按鈕5"));
 		JButton nodeWallet=new JButton("錢包位置查詢");
+		nodeWallet.setEnabled(false);
 		nodeWallet.addActionListener(e->System.out.println("按鈕6"));
 
 
@@ -203,9 +211,19 @@ public class BlockChainAppMain<UserObject> extends JFrame {
 		
 		
 	}
-	public void init_actionListen() {
-		
-		
+	public void btn_Click(String btnName,String Value,String Method) {
+		String Url = "";
+		if(btnName.equals("blockNew")) { Url=httpMethod.routerSelect(HttpMethod.BlockRouter.BLOCKNEW);};
+		if(btnName.equals("blockNew")) { Url=httpMethod.routerSelect(HttpMethod.BlockRouter.BLOCKNEW);};
+		if(btnName.equals("blockNew")) { Url=httpMethod.routerSelect(HttpMethod.BlockRouter.BLOCKNEW);};
+		if(btnName.equals("blockNew")) { Url=httpMethod.routerSelect(HttpMethod.BlockRouter.BLOCKNEW);};
+		if(btnName.equals("blockNew")) { Url=httpMethod.routerSelect(HttpMethod.BlockRouter.BLOCKNEW);};
+		if(Value.equals("")) { //無參數
+			httpMethod.asnyGet(Url);
+			return;
+		}
+		String content="";
+		httpMethod.asnyMethod(Url, content, Method);
 	}
 	
 	

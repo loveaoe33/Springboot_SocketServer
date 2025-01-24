@@ -1,3 +1,4 @@
+package lib;
 import java.util.HashMap;
 
 public class SingleClassMethod {
@@ -7,7 +8,7 @@ public class SingleClassMethod {
 
 	}
 
-	public static getMethodInstance() {
+	public static SingleClassMethod getMethodInstance() {
 		if (singleClassMethod==null )
 		{
 			singleClassMethod=new SingleClassMethod();
@@ -16,12 +17,12 @@ public class SingleClassMethod {
 	}
 	
 	public String postAccount(String Account,String Password) {  //登入合約帳號
-		HashMap<String,String> accountData=HashMap<String,String>();
-		accountData.put(Account, Password)
+		HashMap<String,String> accountData=new HashMap<String,String>();
+		accountData.put(Account, Password);
 		return null;
 
 	}
-	public String registerAccount(String Account,String Password) {  //註冊合約帳號
+	public void registerAccount(String Account,String Password) {  //註冊合約帳號
 		
 		
 	}
