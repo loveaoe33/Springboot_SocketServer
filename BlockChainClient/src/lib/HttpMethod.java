@@ -6,25 +6,27 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import ObjectClass.RouterObject;
 import lombok.var;
 
-public class HttpMethod {
+public class HttpMethod<T> {
 
 	private static HttpMethod httpMethod;
 	private RouterObject routerObjetc;
-    private String router_Url="localhost:8080";
-    
+    public String result="";
 	public HttpMethod() {
 		routerObjetc=routerObjetc.getInstance();
 	}
 	public static enum BlockRouter{  //router address
-    	BLOCKNEW,BLOCKALL,CONTRACTADDRESS,TRANSLOG,NODEBALANCE,NODEWALLET;
+    	BLOCKNEW,BLOCKALL,CONTRACTADDRESS,TRANSLOG,NODEBALANCE,NODEWALLET,APPROVELOG,ADMINUPDATELOG,TRANSACTIONLOG;
 
     }
+	
     
 	public static HttpMethod getMethodInstance() {
 		if (httpMethod == null) {
@@ -33,25 +35,34 @@ public class HttpMethod {
 		return httpMethod;
 	}
     public String routerSelect(BlockRouter router) { //router select
-    	
+    	String router_Url;
     	switch(router) {
     	case BLOCKNEW:
-    		router_Url=router_Url+routerObjetc.getRouterArray("blockNew")  ;
+    		router_Url=routerObjetc.getRouterUrl("blockNew")  ;
     		break;
     	case BLOCKALL:
-    		router_Url=router_Url+routerObjetc.getRouterArray("blockAll")  ;
+    		router_Url=routerObjetc.getRouterUrl("blockAll")  ;
     		break;
     	case CONTRACTADDRESS:
-    		router_Url=router_Url+routerObjetc.getRouterArray("contractAddress")  ;
+    		router_Url=routerObjetc.getRouterUrl("contractAddress")  ;
     		break;
     	case TRANSLOG:
-    		router_Url=router_Url+routerObjetc.getRouterArray("transLog")  ;
+    		router_Url=routerObjetc.getRouterUrl("transLog")  ;
     		break;
     	case NODEBALANCE:
-    		router_Url=router_Url+routerObjetc.getRouterArray("nodeBalance")  ;
+    		router_Url=routerObjetc.getRouterUrl("nodeBalance")  ;
     		break;
     	case NODEWALLET:
-    		router_Url=router_Url+routerObjetc.getRouterArray("nodeWallet")  ;
+    		router_Url=routerObjetc.getRouterUrl("nodeWallet")  ;
+    		break;
+     	case APPROVELOG:
+    		router_Url=routerObjetc.getRouterUrl("approve_log")  ;
+    		break;
+     	case ADMINUPDATELOG:
+    		router_Url=routerObjetc.getRouterUrl("admin_update_log")  ;
+    		break;
+      	case TRANSACTIONLOG:
+    		router_Url=routerObjetc.getRouterUrl("transaction_log")  ;
     		break;
     	default:
     		router_Url="";
@@ -60,86 +71,119 @@ public class HttpMethod {
         
     }
 	public void asnyGet(String Url) { // 無參數
-		ExecutorService executorService = Executors.newFixedThreadPool(2);
+		result="";
+        ExecutorService executorService = Executors.newFixedThreadPool(2); //池決定非同步數量
+        System.out.println("Requesting URL: " + Url);
 
-		executorService.submit(() -> {
-			try {
-				// 發送 HTTP GET 請求
-				URL url = new URL(Url);
-				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-				connection.setRequestMethod("GET");
-				connection.setConnectTimeout(5000);
-				connection.setReadTimeout(5000);
+      executorService.submit(() -> {
+            try {
+                URL url = new URL(Url);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+                int responseCode = connection.getResponseCode();
+                System.out.println("Response Code: " + responseCode);
 
-				// 獲取響應碼
-				int responseCode = connection.getResponseCode();
-				System.out.println("Response Code: " + responseCode);
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+                    System.out.println(in);
 
-				if (responseCode == HttpURLConnection.HTTP_OK) {
+                    while ((inputLine = in.readLine()) != null) {
 
-					// 讀取響應內容
-					BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-					String inputLine;
-					StringBuilder response = new StringBuilder();
-					while ((inputLine = in.readLine()) != null) {
-						response.append(inputLine);
-					}
-					in.close();
+                        response.append(inputLine).append("\n");;
+                        System.out.println(response);
 
-					// 顯示響應內容
-					System.out.println("Response Body: " + response.toString());
-				} else {
+                    }
+                    in.close();
 
-				}
+                    System.out.println("Response"+response.toString());
+                    result=response.toString();;
+                } else {
+                	result= "HttpFail"; 
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                result= "FunctionFail"; 
+            }
+			return null;
+        });
 
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-
-		// 關閉執行緒池
-		executorService.shutdown();
+//        try {
+//        
+//            String result = futureResponse.get(); // get() 會等待非同步
+//            return result;
+//        } catch (InterruptedException | ExecutionException e) {
+//            e.printStackTrace();
+//            return "FunctionFail"; 
+//        } finally {
+//            executorService.shutdown();
+//        }
 	}
 
 	public void asnyMethod(String Url, String content, String Method) {
-		ExecutorService executorService = Executors.newFixedThreadPool(2);
-		executorService.submit(() -> {
-			try {
-				URL url = new URL(Url);
-				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-				connection.setRequestMethod(Method);
-				connection.setConnectTimeout(5);
-				connection.setReadTimeout(5);
-				connection.setDoOutput(true);
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-				String requestBody = "";
-				connection.setRequestProperty("Content-Type", "application/json");
-				connection.getOutputStream().write(requestBody.getBytes("UTF-8"));
+        executorService.submit(() -> {
+            try {
+                URL url = new URL(Url);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod(Method);
+                connection.setConnectTimeout(5000);  
+                connection.setReadTimeout(5000);    
+                connection.setDoOutput(true);      
 
-				int responseCode = connection.getResponseCode();
+              
+                if (content != null && !content.isEmpty()) {
+                    connection.getOutputStream().write(content.getBytes("UTF-8"));
+                }
 
-				if (responseCode == HttpURLConnection.HTTP_OK) { // 200 code
-					StringBuilder response = new StringBuilder();
-					try (var reader = new java.io.BufferedReader(
-							new java.io.InputStreamReader(connection.getInputStream()))) {
-						String inputLine;
-						while ((inputLine = reader.readLine()) != null) {
-							response.append(inputLine);
-						}
-					}
+            
+                connection.setRequestProperty("Content-Type", "application/json");
 
-				} else {
+            
+                int responseCode = connection.getResponseCode();
 
-				}
+          
+                if (responseCode == HttpURLConnection.HTTP_OK) { // 200 OK
+                    StringBuilder response = new StringBuilder();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        String inputLine;
+                        while ((inputLine = reader.readLine()) != null) {
+                            response.append(inputLine);
+                        }
+                    }
+                    System.out.println("Response Body: " + response.toString());
+                if(Url.contains("View_Array_Block")) {
+                	
+                	
+                }else if(Url.contains("")) {
+                	
+                	
+                }
 
-			} catch (Exception e) {
+                    result=response.toString();;
+                } else {
+                	result= "HttpFail"; 
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                result= "FunctionFail"; 
+            }
+        });
 
-			}
+//        try {
+//            return futureResponse.get(); 
+//        } catch (InterruptedException | ExecutionException e) {
+//            e.printStackTrace();
+//            return "FunctionFail"; 
+//        } finally {
+//            executorService.shutdown();
+//        }
+    }
 
-		});
-		executorService.shutdown();
-
-	}
 
 //	public void asnycGet(String Url,String Content) {
 //		

@@ -6,6 +6,8 @@ public class RouterObject {
 	public static RouterObject routerObject;
 	private String headerRouer;
 	private String lastRouter;
+	private String router_Url="http://localhost:8080";
+
 	private HashMap<String, String> routerList = new HashMap();
 
 	public RouterObject() {
@@ -28,12 +30,14 @@ public class RouterObject {
 		routerList.put("transLog", "/EthereumController/View_Transaction_Hash");
 		routerList.put("nodeBalance", "/EthereumController/Check_Wallet");
 		routerList.put("nodeWallet", "/EthereumController/Print_Wallet");
+		routerList.put("approve_log", "/EthereumController/Contract_getUserApprovLog");
+		routerList.put("admin_update_log", "/EthereumController/Contract_getAdminUpdatelog");
+		routerList.put("transaction_log", "/EthereumController/Contract_getTransactionlog");
 
 	}
 
-	public String getRouterUrl() {
-
-		return null;
+	public String getRouterUrl(String Case) {
+		return String.format("%d%d", router_Url,routerList.get(Case));
 	}
 
 	public String setRouterUrl() {
@@ -41,7 +45,5 @@ public class RouterObject {
 		return null;
 	}
 
-	public String getRouterArray(String caseSelect) {
-		return routerList.get(caseSelect);
-	}
+
 }

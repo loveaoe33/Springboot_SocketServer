@@ -28,6 +28,18 @@ public class SingleClassMethod {
 	}
 	
 	
+	public void logProcess(String Case) {
+		if(Case.equals(Case))
+		{
+			
+		}else if(Case.equals(Case))
+		{
+			
+		}else if(Case.equals(Case)) {
+			
+		}
+	}
+	
 	public Boolean nodeCheck() {  //SERVER節點檢查
 	
 		return null;
