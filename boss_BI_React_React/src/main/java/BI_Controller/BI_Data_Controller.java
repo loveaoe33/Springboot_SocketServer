@@ -43,12 +43,20 @@ public class BI_Data_Controller {
 	
 	
 	
-	@GetMapping("BI_Data_Controller/test")
-	public String test2() {
+	@GetMapping("BI_Data_Controller/callCompareLast")
+	public String callCompareLast() throws JsonProcessingException {     //ok
 		System.out.println("有近"+bI_RangeDate.getDateCombine());
-		boss_BiServe.getLastYearCash();
+		boss_BiServe.callCompareLast();
 		return "123";
 	}
+	
+	
+	@GetMapping("BI_Data_Controller/test3")
+	public String callRangeAmount() throws JsonProcessingException {
+		boss_BiServe.callRange();
+		return "123";
+	}
+	
 	
 	
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "發送成功"),

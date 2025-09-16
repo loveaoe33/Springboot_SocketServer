@@ -20,7 +20,11 @@ public class BI_RangeDate {
 		return today.getYear()-ProcBorn;
 	}
 	
+    public int getLocalMonth() {
+    	
+		return today.getMonthValue();
 
+    }
 
 	public String getMonth() { // get range month
 	    sb.setLength(0); // clear string
