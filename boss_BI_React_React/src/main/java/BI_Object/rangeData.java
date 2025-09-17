@@ -23,7 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class rangeData {
+public class RangeData {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // 或 SEQUENCE/UUID，依DB不同
 	private Long id;

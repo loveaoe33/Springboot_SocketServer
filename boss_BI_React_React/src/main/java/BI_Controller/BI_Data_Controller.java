@@ -24,63 +24,57 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @SpringBootApplication
 @RestController
-@ComponentScan(basePackages = { "BI_Config", "JPA", "BI_Server","BI_Object" ,"BI_Lib" })
+@ComponentScan(basePackages = { "BI_Config", "JPA", "BI_Server", "BI_Object", "BI_Lib" })
 public class BI_Data_Controller {
 
-	
 	private Boss_BiServer boss_BiServe;
 	private BI_RangeDate bI_RangeDate;
 	private ObjectMapper mapper;
-	
+
 	@Autowired
-	public BI_Data_Controller(Boss_BiServer boss_BiServe,BI_RangeDate bI_RangeDate,ObjectMapper mapper) {
+	public BI_Data_Controller(Boss_BiServer boss_BiServe, BI_RangeDate bI_RangeDate, ObjectMapper mapper) {
 
-		this.boss_BiServe=boss_BiServe;
-		this.bI_RangeDate=bI_RangeDate;
-		this.mapper=mapper;
+		this.boss_BiServe = boss_BiServe;
+		this.bI_RangeDate = bI_RangeDate;
+		this.mapper = mapper;
 
 	}
-	
-	
-	
-	@GetMapping("BI_Data_Controller/callCompareLast")
-	public String callCompareLast() throws JsonProcessingException {     //ok
-		System.out.println("有近"+bI_RangeDate.getDateCombine());
-		boss_BiServe.callCompareLast();
-		return "123";
+
+	@GetMapping("BI_Data_Controller/callCompareLast") // compareLastMonth
+	public String callCompareLast(@RequestParam String sqlSelect) throws JsonProcessingException { // ok
+		System.out.println("有近" + bI_RangeDate.getDateCombine());
+		RequestData requestData = mapper.readValue(sqlSelect, RequestData.class);
+		return boss_BiServe.compareCash(requestData);
 	}
-	
-	
+
 	@GetMapping("BI_Data_Controller/test3")
 	public String callRangeAmount() throws JsonProcessingException {
-		boss_BiServe.callRange();
-		return "123";
+		RequestData data = RequestData.builder().amountCase(null).chartType(null).compareRadio("localYear")
+				.compareType(null).build();
+		return boss_BiServe.compareCash(data);
+
 	}
-	
-	
-	
+
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "發送成功"),
-	@ApiResponse(responseCode = "400", description = "參數錯誤") })
+			@ApiResponse(responseCode = "400", description = "參數錯誤") })
 	@GetMapping("BI_Data_Controller/initAmountData")
-	public String initAmointData() {
-		return boss_BiServe.getInit_Amount();
+	public String initAmointData() throws JsonProcessingException { // initData
+		RequestData data = RequestData.builder().amountCase(null).chartType(null).compareRadio("initData")
+				.compareType(null).build();
+		return boss_BiServe.compareCash(data);
 	}
-	
 
 	@Operation(summary = "select condition")
 	@ApiResponses({ @ApiResponse(responseCode = "200", description = "發送成功"),
-	@ApiResponse(responseCode = "400", description = "參數錯誤") })
-	@GetMapping("BI_Data_Controller/test2")
-	public String getSQLSelect(@RequestParam  String sqlSelect) throws JsonMappingException, JsonProcessingException {
-		System.out.println("有近2"+sqlSelect);
+			@ApiResponse(responseCode = "400", description = "參數錯誤") })
 
-		RequestData	requestData=mapper.readValue(sqlSelect, RequestData.class);
-		System.out.println("有近2"+requestData.getChartType());
+	@GetMapping("BI_Data_Controller/test2")
+	public String getSQLSelect(@RequestParam String sqlSelect) throws JsonMappingException, JsonProcessingException {
+		System.out.println("有近2" + sqlSelect);
+
+		RequestData requestData = mapper.readValue(sqlSelect, RequestData.class);
+		System.out.println("有近2" + requestData.getChartType());
 		return "123";
 	}
-	
-	
 
-	
-	
 }

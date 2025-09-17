@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import BI_Lib.BI_JudgeCase;
 import BI_Object.RequestData;
 import JPA.Boss_BI_JPAController;
 
@@ -15,48 +16,69 @@ import JPA.Boss_BI_JPAController;
 public class Boss_BiServer {
 
 	private Boss_BI_JPAController jpaController;
+	private BI_JudgeCase bI_JudgeCase;
 
 	@Autowired
-	public Boss_BiServer(Boss_BI_JPAController jpaController) {
+	public Boss_BiServer(Boss_BI_JPAController jpaController,BI_JudgeCase bI_JudgeCase) {
 		this.jpaController = jpaController;
+		this.bI_JudgeCase=bI_JudgeCase;
 	}
 
-	public String compareCash(RequestData caseData) { // compare condition amount chart data
+	public String compareCash(RequestData caseData) throws JsonProcessingException { // compare condition amount chart data
 		HashMap<String, String> data = new HashMap<String, String>();
 		switch (caseData.getCompareRadio()) {
-		case "localYear":
+		case "initData":
+			getInit_Amount();
+			break;
+		case "localYear":      //year range data
+			callRange();
 //					 data=jpaController.data_Local_Compare(RequestData caseData);
 			break;
-		case "lastYear":
+		case "lastYear":      //compare last year && same range
+			callCompareLast(caseData);
 			break;
-		case "otherYear":
+		case "otherYear":     //compare last year
 			break;
 		}
 
 		return "";
 	}
 
-	public void getWeekCash() { // get week Operating amount temp
+	private void getWeekCash() { // get week Operating amount temp
 
 	}
 
-	public String getInit_Amount() {// get year month local Operating amount temp
+	private String getInit_Amount() {// get year month local Operating amount temp
 
 		return jpaController.getInit_Amount();
 
 	}
 
-	public String getLastYearCash() { // get year Operating amount temp
+	private String getLastYearCash() { // get year Operating amount temp
 		return String.valueOf(jpaController.getLastYear_Amount("113"));
 	}
 
-	public String callCompareLast() throws JsonProcessingException {   //get compare local month &&  last year month amount 
-		jpaController.callCompareLast();
+	private String callCompareLast(RequestData requestData) throws JsonProcessingException {   //get compare local month &&  last year month amount 
+		if(bI_JudgeCase.caseCheck(requestData).equals("11")) {
+			jpaController.callCompareLast();
+		}else {
+			
+			jpaController.callCompareLast();
+
+		}
+			
+			
 		return "Sucess";
 	}
 
-	public String callRange() throws JsonProcessingException {
+	private String callRange() throws JsonProcessingException {  //get range data no compare
 		jpaController.getRange("114", "1", "9");
+		return "Sucess";
+	}
+	
+	
+	private String callRange_Compare() throws JsonProcessingException {  //get range data && compare
+		jpaController.getRange_Compare("114", "1", "9","113","1","9");
 		return "Sucess";
 	}
 

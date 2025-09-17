@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import BI_Lib.BI_JudgeCase;
 import BI_Lib.BI_RangeDate;
 import BI_Object.date_Condition;
 import BI_Object.select_Condition;
@@ -32,10 +33,16 @@ public class BI_Config {
 		
 		return new BI_RangeDate();
 	}	
+	
     @Bean
     public ObjectMapper getObjectMapper() {
     	return new ObjectMapper();
     	
     	
+    }
+    
+    @Bean
+    public BI_JudgeCase getBI_JudgeCase(){
+    	return new BI_JudgeCase();
     }
 }
