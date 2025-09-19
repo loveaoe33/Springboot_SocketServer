@@ -14,6 +14,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import BI_Lib.BI_RangeDate;
 import BI_Object.RequestData;
+import BI_Object.RequestData.CompareType;
 import BI_Object.date_Condition;
 import BI_Object.select_Condition;
 import BI_Server.Boss_BiServer;
@@ -46,6 +47,22 @@ public class BI_Data_Controller {
 		RequestData requestData = mapper.readValue(sqlSelect, RequestData.class);
 		return boss_BiServe.compareCash(requestData);
 	}
+	
+	@GetMapping("BI_Data_Controller/callCompareLasttest") // compareLastMonth
+	public String callCompareLasttest() throws JsonProcessingException { // ok
+        CompareType compareType = CompareType.builder()
+                .startDate("20250101")
+                .endDate("20250131")
+                .compareStartDate("20240101")
+                .compareEndDate("20240131")
+                .build();
+
+		RequestData data = RequestData.builder().amountCase("健保/自費").chartType(null).compareRadio("lastYear").ouLldCase("門診/住院")
+				.compareType(compareType).build();		
+		return boss_BiServe.compareCash(data);
+	}
+	
+	
 
 	@GetMapping("BI_Data_Controller/test3")
 	public String callRangeAmount() throws JsonProcessingException {

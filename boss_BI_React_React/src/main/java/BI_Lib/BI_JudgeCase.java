@@ -25,13 +25,16 @@ public class BI_JudgeCase {
 	}
 	private StringBuilder sb = new StringBuilder();
 	public String caseCheck(RequestData requestData) {
+		System.out.println("case:"+requestData.getAmountCase());
+
 		switch (requestData.getAmountCase()) {
+
 		case "健保/自費":
-			return caseSelect("1");
+			return caseSelect("1",requestData.getOuLldCase());
 		case "健保應收":
-			return caseSelect("2");
+			return caseSelect("2",requestData.getOuLldCase());
 		case "自費實收":
-			return caseSelect("3");
+			return caseSelect("3",requestData.getOuLldCase());
 		}
 		return "none";
 	}
@@ -51,15 +54,15 @@ public class BI_JudgeCase {
 
 	}
 
-	private String caseSelect(String caseAmount) {
+	private String caseSelect(String caseAmount,String ouldCase) {
 
-		switch (caseAmount) {
+		switch (ouldCase) {
 		case "門診/住院":
-			return "caseAmount"+ "1";
+			return caseAmount+ "1";
 		case "門診":
-			return "caseAmount"+ "2";
+			return caseAmount+ "2";
 		case "住院":
-			return "caseAmount"+ "3";
+			return caseAmount+ "3";
 		}
 		return "none";
 	}

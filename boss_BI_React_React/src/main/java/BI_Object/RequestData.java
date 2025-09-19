@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -24,12 +25,14 @@ public class RequestData {
     private String chartType;
     private String compareRadio;
     private CompareType compareType;
-
+    
     @Getter
     @Setter
+    @Builder
+    @ToString
     public static class CompareType {
         private String startDate;
-        private String endEdate;
+        private String endDate;
         private String compareStartDate;
         private String compareEndDate;
     }

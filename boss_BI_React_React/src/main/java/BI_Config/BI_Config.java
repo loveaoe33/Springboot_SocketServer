@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import BI_Lib.BI_JudgeCase;
 import BI_Lib.BI_RangeDate;
+import BI_Object.QueryMethod;
 import BI_Object.date_Condition;
 import BI_Object.select_Condition;
 
@@ -40,6 +41,11 @@ public class BI_Config {
     	
     	
     }
+    
+//    @Bean
+//    public QueryMethod getQueryMethod() {
+//    	return new QueryMethod();
+//    }
     
     @Bean
     public BI_JudgeCase getBI_JudgeCase(){

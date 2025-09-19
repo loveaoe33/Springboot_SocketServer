@@ -42,15 +42,22 @@ public interface Boss_BI_JPA_SqlWhere_Interface extends JpaRepository<V_BILL, Lo
 
 
 	// select own expense last amount
-	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_charge " + "WHERE CASH_DATE LIKE CONCAT(?1,'%' )"
+	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_charge " + "WHERE CASH_DATEBETWEEN :startDate AND :endDate"
 			+ "AND CATEGORIES <> '3'", nativeQuery = true)
-	BigDecimal findToOwnPaid(String year);
+	BigDecimal findToOwnPaid(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
 	// select own and case expense last amount
 	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_charge "
-			+ "WHERE   INP_OPD=?2   AND CASH_DATE LIKE CONCAT*(?1,'%' )" + "  INP_OPD IN (:caseIO) AND CATEGORIES <> '3'", nativeQuery = true)
+			+ "WHERE   CASH_DATE BETWEEN :startDate AND :endDate" + "  INP_OPD IN (:caseIO) AND CATEGORIES IN (:caseSelect) AND CATEGORIES <> '3'", nativeQuery = true)
 	BigDecimal findToOwnPaid(@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("caseIO") List<String> io);
+	
+	
+	// select own and case expense last amount
+	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_charge "
+			+ "WHERE   CASH_DATE BETWEEN :startDate AND :endDate" + "  INP_OPD IN (:caseIO) AND CATEGORIES IN (:caseSelect) AND CATEGORIES <> '3'", nativeQuery = true)
+	BigDecimal findToOwnPaid(@Param("startDate") String startDate, @Param("endDate") String endDate,
+			@Param("caseIO") List<String> io,@Param("sqlWhere") List<String> sqlWhere);
 
 
 
