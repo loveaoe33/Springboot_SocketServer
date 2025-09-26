@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,13 +42,15 @@ public class Boss_BI_JPAController {
 	private DecimalFormat formatter = new DecimalFormat("#,###.##");
 	private QueryMethod query;
 	private ObjectMapper mapper;
+
 	@Autowired
 	public Boss_BI_JPAController(Boss_BI_JPA_InitAmount_Interface boss_BI_InitAmount,
-			Boss_BI_JPA_SqlWhere_Interface boss_BI_SqlWhere, BI_RangeDate bi_RangeDate, ObjectMapper mapper,QueryMethod query) {
+			Boss_BI_JPA_SqlWhere_Interface boss_BI_SqlWhere, BI_RangeDate bi_RangeDate, ObjectMapper mapper,
+			QueryMethod query) {
 		this.boss_BI_InitAmount = boss_BI_InitAmount;
 		this.boss_BI_SqlWhere = boss_BI_SqlWhere;
 		this.bi_RangeDate = bi_RangeDate;
-		this.query=query;
+		this.query = query;
 		this.mapper = mapper;
 	}
 
@@ -129,54 +132,81 @@ public class Boss_BI_JPAController {
 
 	}
 
-	public void getRange(RequestData requestData,String year, String startDate, String endDate,String code) throws JsonProcessingException { // all case &&
-																											// all IO
+	public void getRange(RequestData requestData, String year, String startDate, String endDate, String code)
+			throws JsonProcessingException { // all case &&
+		// all IO
 
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate), Integer.valueOf(endDate), code);
+		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate),
+				Integer.valueOf(endDate), code);
 		System.out.println(mapper.writeValueAsString(jsonData));
 
 	}
 
-	public void getRange(RequestData requestData,String caseSelect, String caseIO, String year, String startDate, String endDate,String code)
-			throws JsonProcessingException { // caseSelect && IO
+	public void getRange(RequestData requestData, String caseSelect, String caseIO, String year, String startDate,
+			String endDate, String code) throws JsonProcessingException { // caseSelect && IO
 
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate), Integer.valueOf(endDate), code);
+		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate),
+				Integer.valueOf(endDate), code);
 		System.out.println(mapper.writeValueAsString(jsonData));
 	}
 
-	public void getRange_Compare(RequestData requestData,String year, String startDate, String endDate, String compareYear,
-			String compare_startDate, String compare_endDate,String code) throws JsonProcessingException { // all case && all IO
+	public void getRange_Compare(RequestData requestData, String year, String startDate, String endDate,
+			String compareYear, String compare_startDate, String compare_endDate, String code)
+			throws JsonProcessingException { // all case && all IO
 
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate), Integer.valueOf(endDate), code);
-		System.out.println(mapper.writeValueAsString(jsonData));
-
-	}
-
-	public void getRange_Compare(RequestData requestData,String caseSelect, String caseIO, String year, String startDate, String endDate,
-			String compareYear, String compare_startDate, String compare_endDate,String code) throws JsonProcessingException { // all
-																													// case
-																													// &&
-																													// all
-																													// IO
-
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate), Integer.valueOf(endDate), code);
+		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate),
+				Integer.valueOf(endDate), code);
 		System.out.println(mapper.writeValueAsString(jsonData));
 
 	}
 
-	public void callCompareLast(RequestData requestData,String code) throws JsonProcessingException {
-																												
+	public void getRange_Compare(RequestData requestData, String caseSelect, String caseIO, String year,
+			String startDate, String endDate, String compareYear, String compare_startDate, String compare_endDate,
+			String code) throws JsonProcessingException { // all
+		// case
+		// &&
+		// all
+		// IO
+
+		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate),
+				Integer.valueOf(endDate), code);
+		System.out.println(mapper.writeValueAsString(jsonData));
+
+	}
+
+	public String callCompareLast(RequestData requestData, String code) throws JsonProcessingException {
 		String lastYear = String.valueOf(bi_RangeDate.getYear() - 1);
 		String thisYear = String.valueOf(bi_RangeDate.getYear());
 		String range = String.valueOf(bi_RangeDate.getLocalMonth());
-		String io=requestData.getOuLldCase();
-	    String caseSelect=requestData.getAmountCase();
+		String io = requestData.getOuLldCase();
+		String caseSelect = requestData.getAmountCase();
+		HashMap<String, Object> result = new HashMap<>();
 		int startMonth = 1;
 		int endMonth = Integer.parseInt(range.replace("0", ""));
-		ArrayList<RangeData> jsonData = buildRangeData(requestData,lastYear, startMonth, endMonth, code);
-		ArrayList<RangeData> jsonData2 = buildRangeData(requestData,thisYear, startMonth, endMonth,code);
-		System.out.println(mapper.writeValueAsString(jsonData));
-		System.out.println(mapper.writeValueAsString(jsonData2));
+		CompletableFuture<ArrayList<RangeData>> future1 = CompletableFuture
+				.supplyAsync(() -> buildRangeData(requestData, lastYear, startMonth, endMonth, code));
+
+		CompletableFuture<ArrayList<RangeData>> future2 = CompletableFuture
+				.supplyAsync(() -> buildRangeData(requestData, thisYear, startMonth, endMonth, code));
+		CompletableFuture<Void> allDone = CompletableFuture.allOf(future1, future2);
+		try {
+			ArrayList<RangeData> jsonData = future1.get();
+			ArrayList<RangeData> jsonData2 = future2.get();
+			if (jsonData == null || jsonData2 == null) {
+
+				return "none";
+			}
+			String resultString = mapper.writeValueAsString(jsonData) + "_" + mapper.writeValueAsString(jsonData2);
+			System.out.println("result" + resultString);
+			return resultString;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "fail";
+
+		}
+
+//		System.out.println(mapper.writeValueAsString(jsonData));
+//		System.out.println(mapper.writeValueAsString(jsonData2));
 	}
 
 //	public void callCompareLast() throws JsonProcessingException { // all case && all IO
@@ -190,33 +220,127 @@ public class Boss_BI_JPAController {
 //		System.out.println(mapper.writeValueAsString(jsonData));
 //		System.out.println(mapper.writeValueAsString(jsonData2));
 //	}
-	
-	
-	public void callCompareLast_caseSelect(RequestData requestData,String code) throws JsonProcessingException { // all case && all IO
-		String lastYear = String.valueOf(bi_RangeDate.getYear() - 1);
-		String thisYear = String.valueOf(bi_RangeDate.getYear());
+
+	public String callRangeCompare(RequestData requestData, String code) {
+		String[] selectData_start = requestData.getCompareType().getStartDate().split("/");
+		String[] selectData_end = requestData.getCompareType().getEndDate().split("/");
+		String[] compareData_start = requestData.getCompareType().getCompareStartDate().split("/");
+		String[] compareData_end = requestData.getCompareType().getCompareEndDate().split("/");
+		String compareProcess_start = bi_RangeDate.getProceeYear(selectData_start[0]) + selectData_start[1]
+				+ selectData_start[2];
+		String compareProcess_end = bi_RangeDate.getProceeYear(selectData_end[0]) + selectData_end[1]
+				+ selectData_end[2];
+		String selectProcess_start = bi_RangeDate.getProceeYear(selectData_start[0]) + selectData_start[1]
+				+ selectData_start[2];
+		String selectProcess_end = bi_RangeDate.getProceeYear(selectData_end[0]) + selectData_end[1]
+				+ selectData_end[2];
+		int select_startMonth = Integer.valueOf(selectData_start[1]);
+		int select_endMonth = Integer.valueOf(selectData_end[2]);
+		int compare_startMonth = Integer.valueOf(compareData_start[1]);
+		int compare_endMonth = Integer.valueOf(compareData_end[2]);
 		String range = String.valueOf(bi_RangeDate.getLocalMonth());
 		int startMonth = 1;
 		int endMonth = Integer.parseInt(range.replace("0", ""));
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, lastYear, startMonth, endMonth, range);
-		ArrayList<RangeData> jsonData2 = buildRangeData(requestData, thisYear, startMonth, endMonth, range);
-		System.out.println(mapper.writeValueAsString(jsonData));
-		System.out.println(mapper.writeValueAsString(jsonData2));
+
+		CompletableFuture<ArrayList<RangeData>> future1 = CompletableFuture
+				.supplyAsync(() -> buildRangeData(requestData, bi_RangeDate.getProceeYear(selectData_start[0]),
+						selectData_start[1], selectData_start[2], selectData_end[1], selectData_end[2], code));
+
+		CompletableFuture<ArrayList<RangeData>> future2 = CompletableFuture
+				.supplyAsync(() -> buildRangeData(requestData, bi_RangeDate.getProceeYear(compareData_start[0]),
+						compareData_start[1], compareData_start[2], compareData_end[1], compareData_end[2], code));
+
+		CompletableFuture<Void> allDone = CompletableFuture.allOf(future1, future2);
+
+		try {
+			ArrayList<RangeData> jsonData = future1.get();
+			ArrayList<RangeData> jsonData2 = future2.get();
+			System.out.println("resultsss" + jsonData);
+
+			if (jsonData == null || jsonData2 == null) {
+
+				return "none";
+			}
+			String resultString = mapper.writeValueAsString(jsonData) + "_" + mapper.writeValueAsString(jsonData2);
+			System.out.println("resultsss" + resultString);
+
+			return resultString;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "fail";
+
+		}
+
 	}
 
-	public ArrayList<RangeData> buildRangeData(RequestData requestData,String year, int startMonth, int endMonth,String code) {
-		ArrayList<RangeData> list = new ArrayList<>();
-		for (int i = startMonth; i <= endMonth; i++) {
-			String monthStr = (i < 10 ? "0" + i : String.valueOf(i));
-			String startDate = year + monthStr + "01";
-			String endDate = year + monthStr + "31";
+	public ArrayList<RangeData> buildRangeData(RequestData requestData, String year, int startMonth, int endMonth,
+			String code) { // local && rangeYear
+		if (requestData.getAmountCase().equals("lastYear")) {
+			ArrayList<RangeData> list = new ArrayList<>();
+			for (int i = startMonth; i <= endMonth; i++) {
+				String monthStr = (i < 10 ? "0" + i : String.valueOf(i));
+				String startDate = year + monthStr + "01";
+				String endDate = year + monthStr + "31";
 
-			RangeData data = RangeData.builder().keyMonth(i + "月")		
-					.priceMonth(query.strategy(boss_BI_SqlWhere, requestData,startDate, endDate,code)).build();
+				RangeData data = RangeData.builder().keyMonth(i + "月")
+						.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, startDate, endDate, code)).build();
 
-			list.add(data);
+				list.add(data);
+			}
+
+			return list;
 		}
-		return list;
+		return null;
+	}
+
+	public ArrayList<RangeData> buildRangeData(RequestData requestData, String year, String startMonth,
+			String startDate, String endMonth, String endDate, String code) { // other year
+
+		int startPoint = Integer.valueOf(startMonth);
+		int endPoint = Integer.valueOf(endMonth);
+		System.out.print("S" + startPoint + "E" + endPoint);
+		if (requestData.getCompareRadio().equals("otherYear")) {
+			ArrayList<RangeData> list = new ArrayList<>();
+			for (int i = startPoint; i <= endPoint; i++) {
+				String monthStr = (i < 10 ? "0" + i : String.valueOf(i));
+				String monthEnd = (i < 10 ? "0" + i : String.valueOf(i));
+
+
+				if (startPoint == endPoint) {
+					RangeData endData = RangeData.builder().keyMonth(i + "月")
+							.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, year + monthStr + startDate,
+									year + monthStr + endDate, code))
+							.build();
+					list.add(endData);
+				
+				}  else if(i==endPoint){
+					RangeData endData = RangeData.builder().keyMonth(i + "月")
+							.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, year + monthStr + "01",
+									year + monthEnd + endDate, code))
+							.build();
+					list.add(endData);
+					
+				}else if(i==startPoint)
+					{
+					RangeData endData = RangeData.builder().keyMonth(i + "月")
+							.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, year + monthStr + startDate,
+									year + monthStr + "31", code))
+							.build();
+					list.add(endData);
+					}else {
+					RangeData startData = RangeData.builder().keyMonth(i + "月")
+							.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, year + monthStr + "01",
+									year + monthStr + "31", code))
+							.build();
+					list.add(startData);
+
+				}
+			}
+
+			return list;
+		}
+		return null;
+
 	}
 
 }

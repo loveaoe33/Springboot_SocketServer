@@ -19,29 +19,29 @@ public class Boss_BiServer {
 	private BI_JudgeCase bI_JudgeCase;
 
 	@Autowired
-	public Boss_BiServer(Boss_BI_JPAController jpaController,BI_JudgeCase bI_JudgeCase) {
+	public Boss_BiServer(Boss_BI_JPAController jpaController, BI_JudgeCase bI_JudgeCase) {
 		this.jpaController = jpaController;
-		this.bI_JudgeCase=bI_JudgeCase;
+		this.bI_JudgeCase = bI_JudgeCase;
 	}
 
-	public String compareCash(RequestData caseData) throws JsonProcessingException { // compare condition amount chart data
+	public String compareCash(RequestData caseData) throws JsonProcessingException { // compare condition amount chart
+																						// data
 		HashMap<String, String> data = new HashMap<String, String>();
 		switch (caseData.getCompareRadio()) {
 		case "initData":
 			getInit_Amount();
 			break;
-		case "localYear":      //year range data
+		case "localYear": // year range data
 //			callRange();
 //					 data=jpaController.data_Local_Compare(RequestData caseData);
 			break;
-		case "lastYear":      //compare last year && same range
-			callCompareLast(caseData);
-			break;
-		case "otherYear":     //compare last year
-			break;
+		case "lastYear": // compare last year && same range
+			return callCompareLast(caseData);
+		case "otherYear": // compare last year
+			return callRangeCompare(caseData);
 		}
 
-		return "";
+		return "fail";
 	}
 
 	private void getWeekCash() { // get week Operating amount temp
@@ -58,28 +58,29 @@ public class Boss_BiServer {
 		return String.valueOf(jpaController.getLastYear_Amount("113"));
 	}
 
-	private String callCompareLast(RequestData requestData) throws JsonProcessingException {   //get compare local month &&  last year month amount 
-		String code=bI_JudgeCase.caseCheck(requestData);
-		if(code.equals("11")) {
-			System.out.println("進入1");
-			jpaController.callCompareLast(requestData, code);
-		}else {
-			System.out.println("進入2");
+	private String callCompareLast(RequestData requestData) throws JsonProcessingException { // get compare local month
+																								// && last year month
+																								// amount
+		String code = bI_JudgeCase.caseCheck(requestData);
+		return jpaController.callCompareLast(requestData, code);
 
-			jpaController.callCompareLast(requestData, code);
 
-		}
-			
-			
-		return "Sucess";
 	}
 
-//	private String callRange() throws JsonProcessingException {  //get range data no compare
-//		jpaController.getRange("114", "1", "9");
-//		return "Sucess";
-//	}
-//	
-//	
+	private String callRangeCompare(RequestData requestData) throws JsonProcessingException {
+
+		String code = bI_JudgeCase.caseCheck(requestData);
+		return jpaController.callRangeCompare(requestData, code);
+
+	}
+
+	private String callRange(RequestData requestData) throws JsonProcessingException {  //get range data no compare
+		String code = bI_JudgeCase.caseCheck(requestData);
+		jpaController.getRange(requestData,"114", "1", "9", code);
+		return "Sucess";
+	}
+	
+	
 //	private String callRange_Compare() throws JsonProcessingException {  //get range data && compare
 //		jpaController.getRange_Compare("114", "1", "9","113","1","9");
 //		return "Sucess";

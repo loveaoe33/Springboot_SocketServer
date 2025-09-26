@@ -14,8 +14,8 @@ import JPA.Boss_BI_JPA_SqlWhere_Interface;
  */
 public interface RangeQuery {
 	BigDecimal query(Boss_BI_JPA_SqlWhere_Interface jpa,String startDate, String endDate);   //select all
-	BigDecimal queryCase(Boss_BI_JPA_SqlWhere_Interface jpa, List<String> caseSelect, List<String> caseIO, String year, String startDate, String endDate); //select case && io
-	BigDecimal queryCaseWhere(Boss_BI_JPA_SqlWhere_Interface jpa,List<String> caseSelect,  List<String> caseIO, String year, String startDate, String endDate, List<String> sqlWhere); //select case && io && sqlwhere
+	BigDecimal queryCase(Boss_BI_JPA_SqlWhere_Interface jpa, List<String> caseSelect, List<String> caseIO, String startDate, String endDate); //select case && io
+	BigDecimal queryCaseWhere(Boss_BI_JPA_SqlWhere_Interface jpa,List<String> caseSelect,  List<String> caseIO, String startDate, String endDate, List<String> sqlWhere); //select case && io && sqlwhere
 
 	
 }

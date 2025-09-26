@@ -1,5 +1,7 @@
 package BI_Controller;
 
+import java.util.HashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -47,21 +49,92 @@ public class BI_Data_Controller {
 		RequestData requestData = mapper.readValue(sqlSelect, RequestData.class);
 		return boss_BiServe.compareCash(requestData);
 	}
-	
-	@GetMapping("BI_Data_Controller/callCompareLasttest") // compareLastMonth
-	public String callCompareLasttest() throws JsonProcessingException { // ok
-        CompareType compareType = CompareType.builder()
-                .startDate("20250101")
-                .endDate("20250131")
-                .compareStartDate("20240101")
-                .compareEndDate("20240131")
-                .build();
 
-		RequestData data = RequestData.builder().amountCase("健保/自費").chartType(null).compareRadio("lastYear").ouLldCase("門診/住院")
-				.compareType(compareType).build();		
-		return boss_BiServe.compareCash(data);
+	@GetMapping("BI_Data_Controller/callCompareLasttest") // compareLastMonth
+	public HashMap<String, String> callCompareLasttest() throws JsonProcessingException { // ok
+		HashMap<String, String> result = new HashMap<>();
+		CompareType compareType = CompareType.builder().startDate("20250101").endDate("20250131")
+				.compareStartDate("20240101").compareEndDate("20240131").build();
+
+		RequestData data = RequestData.builder().amountCase("健保/自費").chartType(null).compareRadio("lastYear")
+				.ouLldCase("門診/住院").compareType(compareType).build();
+
+		if (boss_BiServe.compareCash(data).equals("fail")) {
+			System.out.print("進1");
+
+			return null;
+		} else {
+			System.out.print("進2");
+			String[] json = boss_BiServe.compareCash(data).split("_");
+			result.put("lastYear", json[0]);
+			result.put("thisYear", json[1]);
+			return result;
+
+		}
+
+	}
+
+	@GetMapping("BI_Data_Controller/callCompareLasttest2") // compareLastMonth
+	public HashMap<String, String> callCompareLasttest2() throws JsonProcessingException { // ok
+		HashMap<String, String> result = new HashMap<>();
+		CompareType compareType = CompareType.builder().startDate("20250101").endDate("20250131")
+				.compareStartDate("20240101").compareEndDate("20240131").build();
+
+		RequestData data = RequestData.builder().amountCase("健保/自費").chartType(null).compareRadio("lastYear")
+				.ouLldCase("住院").compareType(compareType).build();
+
+		if (boss_BiServe.compareCash(data).equals("fail")) {
+			System.out.print("進1");
+
+			return null;
+		} else {
+			if (boss_BiServe.compareCash(data) != "") {
+				System.out.print("進2sss"+boss_BiServe.compareCash(data));
+
+				String[] json = boss_BiServe.compareCash(data).split("_");
+				result.put("lastYear", json[0]);
+				result.put("thisYear", json[1]);
+				return result;
+
+			}
+
+			return null;
+
+		}
+
 	}
 	
+	
+	
+	@GetMapping("BI_Data_Controller/callCompareLasttest3") // compareLastMonth
+	public HashMap<String, String> callCompareLasttest3() throws JsonProcessingException { // ok
+		HashMap<String, String> result = new HashMap<>();
+		CompareType compareType = CompareType.builder().startDate("2025/09/03").endDate("2025/12/31")
+				.compareStartDate("2024/09/03").compareEndDate("2024/11/31").build();
+
+		RequestData data = RequestData.builder().amountCase("健保/自費").chartType(null).compareRadio("otherYear")
+				.ouLldCase("住院").compareType(compareType).build();
+      
+		if (boss_BiServe.compareCash(data).equals("fail")) {
+			System.out.print("進1");
+
+			return null;
+		} else {
+//			if (boss_BiServe.compareCash(data) != "") {
+//				System.out.print("進2sss"+boss_BiServe.compareCash(data));
+//
+//				String[] json = boss_BiServe.compareCash(data).split("_");
+//				result.put("lastYear", json[0]);
+//				result.put("thisYear", json[1]);
+//				return result;
+//
+//			}
+
+			return null;
+
+		}
+
+	}
 	
 
 	@GetMapping("BI_Data_Controller/test3")

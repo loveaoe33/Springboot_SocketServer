@@ -58,6 +58,7 @@ public class BI_JudgeCase {
 
 		switch (ouldCase) {
 		case "門診/住院":
+			
 			return caseAmount+ "1";
 		case "門診":
 			return caseAmount+ "2";

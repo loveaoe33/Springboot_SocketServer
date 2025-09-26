@@ -16,8 +16,13 @@ public class BI_RangeDate {
 
 	}
 
-	public int getYear() {
+	public int getYear() {     //get PROC year
 		return today.getYear()-ProcBorn;
+	}
+	
+	
+	public String getProceeYear(String year) {   //process post year
+		return String.valueOf(Integer.valueOf(year)-ProcBorn);
 	}
 	
     public int getLocalMonth() {

@@ -15,17 +15,18 @@ public interface Boss_BI_JPA_SqlWhere_Interface extends JpaRepository<V_BILL, Lo
 
 	// select total expense && health insurance last amount
 	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_bill "
-			+ "WHERE BILL_DATE BETWEEN :startDate AND :endDate " + // 
+			+ "WHERE BILL_DATE BETWEEN :startDate AND :endDate " + //
 			"AND CATEGORIES <> '3'", nativeQuery = true)
 	BigDecimal arrayTotalPaid(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
 	// select total expense && health insurance last amount
 	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_bill "
-			+ "WHERE BILL_DATE BETWEEN :startDate AND :endDate " + "AND CATEGORIES IN (:caseSelect) " + // <- IN
-			"AND INP_OPD IN (:caseIO) " + // <- I/O 欄位也用 IN
+			+ "WHERE BILL_DATE BETWEEN :startDate AND :endDate " + "AND CATEGORIES IN (:caseSelect) " + // 改為 IN
+			"AND INP_OPD IN (:caseIO) " + // 改為 IN
 			"AND CATEGORIES <> '3'", nativeQuery = true)
 	BigDecimal arrayTotalPaid(@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("caseSelect") List<String> caseSelect, @Param("caseIO") List<String> io);
+
 	
 	
 	
@@ -35,31 +36,26 @@ public interface Boss_BI_JPA_SqlWhere_Interface extends JpaRepository<V_BILL, Lo
 			"AND INP_OPD IN (:caseIO) " + // <- I/O 欄位也用 IN
 			"AND CATEGORIES <> '3'", nativeQuery = true)
 	BigDecimal arrayTotalPaid(@Param("startDate") String startDate, @Param("endDate") String endDate,
-			@Param("caseSelect") List<String> caseSelect, @Param("caseIO") List<String> io,@Param("whereSelect") List<String> where);
-
-	
-	
-
+			@Param("caseSelect") List<String> caseSelect, @Param("caseIO") List<String> io,
+			@Param("whereSelect") List<String> where);
 
 	// select own expense last amount
-	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_charge " + "WHERE CASH_DATEBETWEEN :startDate AND :endDate"
-			+ "AND CATEGORIES <> '3'", nativeQuery = true)
+	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_charge "
+			+ "WHERE CASH_DATEBETWEEN :startDate AND :endDate" + "AND CATEGORIES <> '3'", nativeQuery = true)
 	BigDecimal findToOwnPaid(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
 	// select own and case expense last amount
 	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_charge "
-			+ "WHERE   CASH_DATE BETWEEN :startDate AND :endDate" + "  INP_OPD IN (:caseIO) AND CATEGORIES IN (:caseSelect) AND CATEGORIES <> '3'", nativeQuery = true)
+			+ "WHERE   CASH_DATE BETWEEN :startDate AND :endDate"
+			+ "  INP_OPD IN (:caseIO) AND CATEGORIES IN (:caseSelect) AND CATEGORIES <> '3'", nativeQuery = true)
 	BigDecimal findToOwnPaid(@Param("startDate") String startDate, @Param("endDate") String endDate,
 			@Param("caseIO") List<String> io);
-	
-	
+
 	// select own and case expense last amount
 	@Query(value = "SELECT SUM(TOT_AMT) as totalPaid " + "FROM v_charge "
-			+ "WHERE   CASH_DATE BETWEEN :startDate AND :endDate" + "  INP_OPD IN (:caseIO) AND CATEGORIES IN (:caseSelect) AND CATEGORIES <> '3'", nativeQuery = true)
+			+ "WHERE   CASH_DATE BETWEEN :startDate AND :endDate"
+			+ "  INP_OPD IN (:caseIO) AND CATEGORIES IN (:caseSelect) AND CATEGORIES <> '3'", nativeQuery = true)
 	BigDecimal findToOwnPaid(@Param("startDate") String startDate, @Param("endDate") String endDate,
-			@Param("caseIO") List<String> io,@Param("sqlWhere") List<String> sqlWhere);
-
-
-
+			@Param("caseIO") List<String> io, @Param("sqlWhere") List<String> sqlWhere);
 
 }
