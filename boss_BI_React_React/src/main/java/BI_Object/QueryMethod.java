@@ -1,6 +1,7 @@
 package BI_Object;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,10 +19,10 @@ import lombok.Setter;
 @Setter
 @Builder
 public class QueryMethod {
+	private DecimalFormat formatter;
 
-	public BigDecimal strategy(Boss_BI_JPA_SqlWhere_Interface jpa, RequestData data, String startDate, String endDate,
+	public BigDecimal strategy(Boss_BI_JPA_SqlWhere_Interface jpa,RequestData data, String startDate, String endDate,
 			String code) {
-		System.out.print("QuerystartDate"+startDate+"endDate"+endDate+"code"+code);
 		switch (code) {
 		case "11": /* 健保/自費 門診/住院 */
 			return getTotalPaidQuery().query(jpa, startDate, endDate);

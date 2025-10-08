@@ -18,7 +18,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RequestData {
-	
+
     private String amountCase;
     private String ouLldCase;
 	private List<String> sqlCheckbox;   
@@ -29,6 +29,8 @@ public class RequestData {
     @Getter
     @Setter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     @ToString
     public static class CompareType {
         private String startDate;
@@ -37,3 +39,5 @@ public class RequestData {
         private String compareEndDate;
     }
 }
+
+

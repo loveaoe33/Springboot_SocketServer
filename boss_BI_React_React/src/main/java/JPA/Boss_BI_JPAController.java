@@ -39,19 +39,20 @@ public class Boss_BI_JPAController {
 	private BigInteger this_Local_Amount;
 	private BI_RangeDate bi_RangeDate;
 	private StringBuilder sb = new StringBuilder();
-	private DecimalFormat formatter = new DecimalFormat("#,###.##");
+	private DecimalFormat formatter;
 	private QueryMethod query;
 	private ObjectMapper mapper;
 
 	@Autowired
 	public Boss_BI_JPAController(Boss_BI_JPA_InitAmount_Interface boss_BI_InitAmount,
 			Boss_BI_JPA_SqlWhere_Interface boss_BI_SqlWhere, BI_RangeDate bi_RangeDate, ObjectMapper mapper,
-			QueryMethod query) {
+			QueryMethod query, DecimalFormat formatter) {
 		this.boss_BI_InitAmount = boss_BI_InitAmount;
 		this.boss_BI_SqlWhere = boss_BI_SqlWhere;
 		this.bi_RangeDate = bi_RangeDate;
 		this.query = query;
 		this.mapper = mapper;
+		this.formatter = formatter;
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
@@ -132,21 +133,35 @@ public class Boss_BI_JPAController {
 
 	}
 
-	public void getRange(RequestData requestData, String year, String startDate, String endDate, String code)
+	public String getRange(RequestData requestData, String year, String startDate, String endDate, String code)
 			throws JsonProcessingException { // all case &&
 		// all IO
 
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate),
-				Integer.valueOf(endDate), code);
-		System.out.println(mapper.writeValueAsString(jsonData));
+//		bi_RangeDate
+		String[] startDates = startDate.split("-");
+		String[] endDates = endDate.split("-");
+		String startYear = startDates[0];
+		String endYear = endDates[0];
+		System.out.println("startYear:" + startDates[0] + "endYear" + startDates[1]);
+
+		if (startYear.equals(endYear)) {
+			ArrayList<RangeData> jsonData = buildRangeData(requestData, bi_RangeDate.getProceeYear(startYear),
+					Integer.valueOf(startDates[1]), startDates[1] + startDates[2], Integer.valueOf(endDates[1]),
+					endDates[1] + endDates[2], code);
+
+			return (jsonData != null) ? mapper.writeValueAsString(jsonData) : "none";
+
+		} else {
+			return "fail";
+		}
 
 	}
 
 	public void getRange(RequestData requestData, String caseSelect, String caseIO, String year, String startDate,
 			String endDate, String code) throws JsonProcessingException { // caseSelect && IO
 
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate),
-				Integer.valueOf(endDate), code);
+		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate), "",
+				Integer.valueOf(endDate), "", code);
 		System.out.println(mapper.writeValueAsString(jsonData));
 	}
 
@@ -154,8 +169,8 @@ public class Boss_BI_JPAController {
 			String compareYear, String compare_startDate, String compare_endDate, String code)
 			throws JsonProcessingException { // all case && all IO
 
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate),
-				Integer.valueOf(endDate), code);
+		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate), "",
+				Integer.valueOf(endDate), "", code);
 		System.out.println(mapper.writeValueAsString(jsonData));
 
 	}
@@ -168,8 +183,8 @@ public class Boss_BI_JPAController {
 		// all
 		// IO
 
-		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate),
-				Integer.valueOf(endDate), code);
+		ArrayList<RangeData> jsonData = buildRangeData(requestData, year, Integer.valueOf(startDate), "",
+				Integer.valueOf(endDate), "", code);
 		System.out.println(mapper.writeValueAsString(jsonData));
 
 	}
@@ -182,12 +197,17 @@ public class Boss_BI_JPAController {
 		String caseSelect = requestData.getAmountCase();
 		HashMap<String, Object> result = new HashMap<>();
 		int startMonth = 1;
-		int endMonth = Integer.parseInt(range.replace("0", ""));
+		int endMonth=Integer.parseInt(range);
+//		int endMonth = Integer.parseInt(range.replace("0", ""));
+		
+		System.out.println("lastYear" +lastYear+"thisYear"+thisYear+"range"+range+"startMonth"+startMonth+"endMonth"+endMonth);		
+
+		
 		CompletableFuture<ArrayList<RangeData>> future1 = CompletableFuture
-				.supplyAsync(() -> buildRangeData(requestData, lastYear, startMonth, endMonth, code));
+				.supplyAsync(() -> buildRangeData(requestData, lastYear, startMonth, "", endMonth, "", code));
 
 		CompletableFuture<ArrayList<RangeData>> future2 = CompletableFuture
-				.supplyAsync(() -> buildRangeData(requestData, thisYear, startMonth, endMonth, code));
+				.supplyAsync(() -> buildRangeData(requestData, thisYear, startMonth, "", endMonth, "", code));
 		CompletableFuture<Void> allDone = CompletableFuture.allOf(future1, future2);
 		try {
 			ArrayList<RangeData> jsonData = future1.get();
@@ -273,24 +293,61 @@ public class Boss_BI_JPAController {
 
 	}
 
-	public ArrayList<RangeData> buildRangeData(RequestData requestData, String year, int startMonth, int endMonth,
-			String code) { // local && rangeYear
-		if (requestData.getAmountCase().equals("lastYear")) {
-			ArrayList<RangeData> list = new ArrayList<>();
-			for (int i = startMonth; i <= endMonth; i++) {
-				String monthStr = (i < 10 ? "0" + i : String.valueOf(i));
-				String startDate = year + monthStr + "01";
-				String endDate = year + monthStr + "31";
+	public ArrayList<RangeData> buildRangeData(RequestData requestData, String year, int startMonth,
+			String startDate_Local, int endMonth, String endDate_Local, String code) { // local && rangeYear
 
-				RangeData data = RangeData.builder().keyMonth(i + "月")
-						.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, startDate, endDate, code)).build();
+		System.out.println("getAmountCase" + requestData.getCompareRadio());
+
+		ArrayList<RangeData> list = new ArrayList<>();
+		if (requestData.getCompareRadio().equals("lastYear")) {
+			for (int i = startMonth; i <= endMonth; i++) {
+			
+				String monthStr = (i < 10 ? "0" + i : String.valueOf(i));
+				RangeData data = RangeData.builder().keyMonth(i + "月").priceMonth(query.strategy(boss_BI_SqlWhere,
+						requestData, year + monthStr + "01", year + monthStr + "31", code)).build();
 
 				list.add(data);
 			}
 
-			return list;
+		} else if (requestData.getCompareRadio().equals("localYear")) {
+
+			System.out.println("startDate_Local" + startDate_Local + "endDate_Local" + endDate_Local);
+			for (int i = startMonth; i <= endMonth; i++) {
+				String monthStr = (i < 10 ? "0" + i : String.valueOf(i));
+				if (startMonth == endMonth) {
+					RangeData data = RangeData.builder().keyMonth(i + "月").priceMonth(query.strategy(boss_BI_SqlWhere,
+							requestData, year + startDate_Local, year + endDate_Local, code)).build();
+
+					list.add(data);
+
+				} else if (i == startMonth) {
+
+					RangeData data = RangeData.builder().keyMonth(i + "月").priceMonth(query.strategy(boss_BI_SqlWhere,
+							requestData, year + startDate_Local, year + monthStr + "31", code)).build();
+
+					list.add(data);
+
+				} else if (i == endMonth) {
+
+					RangeData data = RangeData.builder().keyMonth(i + "月").priceMonth(query.strategy(boss_BI_SqlWhere,
+							requestData, year + monthStr + "01", year + endDate_Local, code)).build();
+
+					list.add(data);
+				} else {
+
+					RangeData data = RangeData.builder().keyMonth(i + "月").priceMonth(query.strategy(boss_BI_SqlWhere,
+							requestData, year + monthStr + "01", year + monthStr + "31", code)).build();
+
+					list.add(data);
+
+				}
+
+			}
+
 		}
-		return null;
+
+		System.out.print(list);
+		return list;
 	}
 
 	public ArrayList<RangeData> buildRangeData(RequestData requestData, String year, String startMonth,
@@ -305,29 +362,27 @@ public class Boss_BI_JPAController {
 				String monthStr = (i < 10 ? "0" + i : String.valueOf(i));
 				String monthEnd = (i < 10 ? "0" + i : String.valueOf(i));
 
-
 				if (startPoint == endPoint) {
 					RangeData endData = RangeData.builder().keyMonth(i + "月")
 							.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, year + monthStr + startDate,
 									year + monthStr + endDate, code))
 							.build();
 					list.add(endData);
-				
-				}  else if(i==endPoint){
+
+				} else if (i == endPoint) {
 					RangeData endData = RangeData.builder().keyMonth(i + "月")
 							.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, year + monthStr + "01",
 									year + monthEnd + endDate, code))
 							.build();
 					list.add(endData);
-					
-				}else if(i==startPoint)
-					{
+
+				} else if (i == startPoint) {
 					RangeData endData = RangeData.builder().keyMonth(i + "月")
 							.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, year + monthStr + startDate,
 									year + monthStr + "31", code))
 							.build();
 					list.add(endData);
-					}else {
+				} else {
 					RangeData startData = RangeData.builder().keyMonth(i + "月")
 							.priceMonth(query.strategy(boss_BI_SqlWhere, requestData, year + monthStr + "01",
 									year + monthStr + "31", code))

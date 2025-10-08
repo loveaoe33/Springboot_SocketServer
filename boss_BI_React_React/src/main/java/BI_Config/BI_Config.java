@@ -1,5 +1,7 @@
 package BI_Config;
 
+import java.text.DecimalFormat;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -50,5 +52,11 @@ public class BI_Config {
     @Bean
     public BI_JudgeCase getBI_JudgeCase(){
     	return new BI_JudgeCase();
+    }
+    
+    @Bean
+    public DecimalFormat getDecimal() {
+    	return new DecimalFormat("#,###.##");
+
     }
 }

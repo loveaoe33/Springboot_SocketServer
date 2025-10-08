@@ -43,11 +43,20 @@ public class BI_Data_Controller {
 
 	}
 
+//	@RequestParam String sqlSelect
+	
+	
 	@GetMapping("BI_Data_Controller/callCompareLast") // compareLastMonth
-	public String callCompareLast(@RequestParam String sqlSelect) throws JsonProcessingException { // ok
-		System.out.println("有近" + bI_RangeDate.getDateCombine());
-		RequestData requestData = mapper.readValue(sqlSelect, RequestData.class);
-		return boss_BiServe.compareCash(requestData);
+	public String callCompareLast() throws JsonProcessingException { // ok
+		HashMap<String, String> result = new HashMap<>();
+		CompareType compareType = CompareType.builder().startDate("").endDate("")
+				.compareStartDate("").compareEndDate("").build();
+
+		RequestData data = RequestData.builder().amountCase("健保/自費").chartType(null).compareRadio("lastYear")
+				.ouLldCase("門診/住院").compareType(compareType).build();
+		
+		System.out.println("callCompareLast有近" +boss_BiServe.compareCash(data));		
+		return boss_BiServe.compareCash(data);
 	}
 
 	@GetMapping("BI_Data_Controller/callCompareLasttest") // compareLastMonth
@@ -137,11 +146,21 @@ public class BI_Data_Controller {
 	}
 	
 
-	@GetMapping("BI_Data_Controller/test3")
-	public String callRangeAmount() throws JsonProcessingException {
-		RequestData data = RequestData.builder().amountCase(null).chartType(null).compareRadio("localYear")
-				.compareType(null).build();
-		return boss_BiServe.compareCash(data);
+	@GetMapping("BI_Data_Controller/callRangeAmount")
+	public String callRangeAmount(@RequestParam String sqlSelect) throws JsonProcessingException {
+//		RequestData data = RequestData.builder().amountCase(null).chartType(null).compareRadio("localYear")
+//				.compareType(null).build();
+//		System.out.print(sqlSelect);
+//		
+//		CompareType compareType = CompareType.builder().startDate("2025/09/03").endDate("2025/12/31")
+//				.compareStartDate("2024/09/03").compareEndDate("2024/11/31").build();
+
+//		RequestData data = RequestData.builder().amountCase("健保/自費").chartType(null).compareRadio("otherYear")
+//				.ouLldCase("住院").compareType(compareType).build();
+		
+		
+		RequestData requestData = mapper.readValue(sqlSelect, RequestData.class);
+		return boss_BiServe.compareCash(requestData);
 
 	}
 

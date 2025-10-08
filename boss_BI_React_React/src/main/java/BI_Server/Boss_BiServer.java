@@ -1,5 +1,6 @@
 package BI_Server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import BI_Lib.BI_JudgeCase;
 import BI_Object.RequestData;
@@ -17,11 +19,13 @@ public class Boss_BiServer {
 
 	private Boss_BI_JPAController jpaController;
 	private BI_JudgeCase bI_JudgeCase;
+	private ObjectMapper mapper;
 
 	@Autowired
-	public Boss_BiServer(Boss_BI_JPAController jpaController, BI_JudgeCase bI_JudgeCase) {
+	public Boss_BiServer(Boss_BI_JPAController jpaController, BI_JudgeCase bI_JudgeCase,ObjectMapper mapper) {
 		this.jpaController = jpaController;
 		this.bI_JudgeCase = bI_JudgeCase;
+		this.mapper=mapper;
 	}
 
 	public String compareCash(RequestData caseData) throws JsonProcessingException { // compare condition amount chart
@@ -29,12 +33,10 @@ public class Boss_BiServer {
 		HashMap<String, String> data = new HashMap<String, String>();
 		switch (caseData.getCompareRadio()) {
 		case "initData":
-			getInit_Amount();
-			break;
+			return getInit_Amount();
 		case "localYear": // year range data
-//			callRange();
+			return callRange(caseData);
 //					 data=jpaController.data_Local_Compare(RequestData caseData);
-			break;
 		case "lastYear": // compare last year && same range
 			return callCompareLast(caseData);
 		case "otherYear": // compare last year
@@ -76,8 +78,9 @@ public class Boss_BiServer {
 
 	private String callRange(RequestData requestData) throws JsonProcessingException {  //get range data no compare
 		String code = bI_JudgeCase.caseCheck(requestData);
-		jpaController.getRange(requestData,"114", "1", "9", code);
-		return "Sucess";
+		System.out.print("code"+code);
+		
+		return jpaController.getRange(requestData,"",requestData.getCompareType().getStartDate(),requestData.getCompareType().getEndDate(), code);
 	}
 	
 	
