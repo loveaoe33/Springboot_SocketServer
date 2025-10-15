@@ -22,10 +22,10 @@ public class Boss_BiServer {
 	private ObjectMapper mapper;
 
 	@Autowired
-	public Boss_BiServer(Boss_BI_JPAController jpaController, BI_JudgeCase bI_JudgeCase,ObjectMapper mapper) {
+	public Boss_BiServer(Boss_BI_JPAController jpaController, BI_JudgeCase bI_JudgeCase, ObjectMapper mapper) {
 		this.jpaController = jpaController;
 		this.bI_JudgeCase = bI_JudgeCase;
-		this.mapper=mapper;
+		this.mapper = mapper;
 	}
 
 	public String compareCash(RequestData caseData) throws JsonProcessingException { // compare condition amount chart
@@ -66,24 +66,23 @@ public class Boss_BiServer {
 		String code = bI_JudgeCase.caseCheck(requestData);
 		return jpaController.callCompareLast(requestData, code);
 
-
 	}
 
 	private String callRangeCompare(RequestData requestData) throws JsonProcessingException {
-
+		requestData.getCompareType().normalizeDates();
 		String code = bI_JudgeCase.caseCheck(requestData);
 		return jpaController.callRangeCompare(requestData, code);
 
 	}
 
-	private String callRange(RequestData requestData) throws JsonProcessingException {  //get range data no compare
+	private String callRange(RequestData requestData) throws JsonProcessingException { // get range data no compare
 		String code = bI_JudgeCase.caseCheck(requestData);
-		System.out.print("code"+code);
-		
-		return jpaController.getRange(requestData,"",requestData.getCompareType().getStartDate(),requestData.getCompareType().getEndDate(), code);
+		System.out.print("code" + code);
+
+		return jpaController.getRange(requestData, "", requestData.getCompareType().getStartDate(),
+				requestData.getCompareType().getEndDate(), code);
 	}
-	
-	
+
 //	private String callRange_Compare() throws JsonProcessingException {  //get range data && compare
 //		jpaController.getRange_Compare("114", "1", "9","113","1","9");
 //		return "Sucess";

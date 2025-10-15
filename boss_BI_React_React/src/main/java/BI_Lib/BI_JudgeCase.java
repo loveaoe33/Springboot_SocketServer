@@ -25,7 +25,7 @@ public class BI_JudgeCase {
 	}
 	private StringBuilder sb = new StringBuilder();
 	public String caseCheck(RequestData requestData) {
-		System.out.println("case:"+requestData.getAmountCase());
+		System.out.println("caseA:"+requestData.getAmountCase()+"caseB:"+requestData.getOuLldCase());
 
 		switch (requestData.getAmountCase()) {
 
@@ -58,7 +58,6 @@ public class BI_JudgeCase {
 
 		switch (ouldCase) {
 		case "門診/住院":
-			
 			return caseAmount+ "1";
 		case "門診":
 			return caseAmount+ "2";

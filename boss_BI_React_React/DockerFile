@@ -1,0 +1,14 @@
+# 使用官方的 OpenJDK 作為基礎映像
+FROM openjdk:17-jdk-slim
+
+# 設定工作目錄
+WORKDIR /app
+
+# 從 target 目錄將 jar 包複製到容器中
+COPY target/repairApplication-0.0.1-SNAPSHOT.jar repair.jar
+
+# 啟動應用程式
+ENTRYPOINT ["java", "-jar", "repair.jar"]
+
+# 暴露應用程式運行的端口
+EXPOSE 8084

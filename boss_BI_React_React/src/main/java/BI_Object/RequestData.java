@@ -37,6 +37,12 @@ public class RequestData {
         private String endDate;
         private String compareStartDate;
         private String compareEndDate;
+        public void normalizeDates() {
+            if (startDate != null) startDate = startDate.replaceAll("-", "/");
+            if (endDate != null) endDate = endDate.replaceAll("-", "/");
+            if (compareStartDate != null) compareStartDate = compareStartDate.replaceAll("-", "/");
+            if (compareEndDate != null) compareEndDate = compareEndDate.replaceAll("-", "/");
+        }
     }
 }
 
